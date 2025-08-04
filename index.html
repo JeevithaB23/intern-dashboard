@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Intern Dashboard</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --accent: #6366f1;
+      --bg: #f0f4ff;
+      --white: #ffffff;
+      --text: #1f2937;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 2rem;
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--primary);
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background-color: var(--white);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .card h2 {
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    select, input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 0.5rem 0 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    ul {
+      padding-left: 1rem;
+    }
+
+    li {
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      background-color: #e0e7ff;
+      border-radius: 6px;
+    }
+
+    .label {
+      font-weight: bold;
+    }
+
+    .value {
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌟 Intern Dashboard 🌟</h1>
+
+    <!-- Intern Selector -->
+    <div class="card">
+      <h2>🔄 Select Intern</h2>
+      <select id="internSelect">
+        <option disabled selected>Select an intern</option>
+      </select>
+    </div>
+
+    <!-- Intern Profile -->
+    <div class="card" id="profile">
+      <h2>👤 Intern Profile</h2>
+      <p><span class="label">Name:</span> <span class="value" id="name">--</span></p>
+      <p><span class="label">Referral Code:</span> <span class="value" id="referral">--</span></p>
+      <p><span class="label">Total Donations Raised:</span> ₹<span class="value" id="donations">--</span></p>
+    </div>
+
+    <!-- Rewards -->
+    <div class="card">
+      <h2>🎁 Rewards & Unlockables</h2>
+      <ul id="rewardsList"></ul>
+    </div>
+  </div>
+
+  <script>
+    // Populate intern dropdown
+    fetch("http://localhost:5000/users")
+      .then(res => res.json())
+      .then(interns => {
+        const select = document.getElementById("internSelect");
+        interns.forEach(intern => {
+          const option = document.createElement("option");
+          option.value = intern.id;
+          option.textContent = intern.name;
+          select.appendChild(option);
+        });
+
+        // Load data when selection changes
+        select.addEventListener("change", () => {
+          const id = select.value;
+          fetch(`http://localhost:5000/user/${id}`)
+            .then(res => res.json())
+            .then(data => {
+              document.getElementById("name").textContent = data.name;
+              document.getElementById("referral").textContent = data.referralCode;
+              document.getElementById("donations").textContent = data.donationsRaised;
+            });
+        });
+      });
+
+    // Load rewards
+    fetch("http://localhost:5000/rewards")
+      .then(res => res.json())
+      .then(rewards => {
+        const list = document.getElementById("rewardsList");
+        rewards.forEach(r => {
+          const li = document.createElement("li");
+          li.textContent = `${r.title} (Unlocked at ₹${r.unlockedAt})`;
+          list.appendChild(li);
+        });
+      });
+  </script>
+</body>
+</html>
